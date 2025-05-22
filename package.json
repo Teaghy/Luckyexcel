@@ -1,14 +1,23 @@
 {
-  "name": "luckyexcel",
-  "version": "1.0.0",
+  "name": "@teaghy/luckyexcel",
+  "version": "1.0.1",
   "description": "An excel import and export library adapted to Luckysheet",
   "main": "dist/luckyexcel.cjs.js",
   "module": "dist/luckyexcel.esm.js",
   "browser": "dist/luckyexcel.umd.js",
   "scripts": {
     "build": "gulp build",
-    "dev": "gulp dev"
+    "dev": "gulp dev",
+    "build:publish": "gulp build && npm publish"
   },
+  "files": [
+    "dist",
+    "package.json",
+    "README.md",
+    "LICENSE",
+    "tsconfig.json",
+    "README.zh.md"
+  ],
   "keywords": [
     "Luckysheet",
     "excel"
