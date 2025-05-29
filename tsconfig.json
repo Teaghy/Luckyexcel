@@ -1,14 +1,16 @@
 {
-    "files": [
-        "src/main.umd.ts",
-        "src/main.esm.ts"
-    ],
     "compilerOptions": {
+        "allowSyntheticDefaultImports": true,
         "noImplicitAny": true,
         "target": "ES5",
         "outDir": "output/",
         "esModuleInterop": true,
-        "module": "commonjs"
+        "module": "commonjs",
+        "moduleResolution": "node",
+        "baseUrl": ".",
+        "paths": {
+            "*": ["src/*"]
+        }
     },
     "include": [
         "src/**/*"

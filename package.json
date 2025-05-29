@@ -57,5 +57,9 @@
   "dependencies": {
     "dayjs": "^1.10.6",
     "jszip": "^3.5.0"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
   }
 }
