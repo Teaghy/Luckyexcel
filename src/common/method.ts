@@ -978,29 +978,62 @@ export function getBinaryContent (path:any, options:any) {
 }
 
 /**
- * multi sequence conversion
- * example:
- *  1、E14 -> 13_4
- *  2、E14 J14 O14 T14 Y14 AD14 AI14 AN14 AS14 AX14 ->
- *     ['13_4', '13_9','13_14', '13_19', '13_24', '13_3', '13_8',  '13_13', '13_18', '13_23']
- *  3、E46:E47 -> ['45_4',  '46_4']
- *
- * @param {string} sqref - before sequence
- * @returns {string[]}
+ * @desc This will convert string to array of number
+ * @param {string} str - string of cell range
+ * @param {any} sheetData - sheet data to determine actual range
+ * @returns {string[]} - array of cell index
  */
-export function getMultiSequenceToNum(sqref: string): string[] {
-  if (!sqref || sqref?.length <= 0) return [];
-  sqref = sqref.toUpperCase();
-  let sqrefRawArr = sqref.split(" ");
-  let sqrefArr = sqrefRawArr.filter((e) => e && e.trim());
-  let sqrefLastArr = getSqrefRawArrFormat(sqrefArr);
-
-  let resArr: string[] = [];
-  for (let i = 0; i < sqrefLastArr.length; i++) {
-    let _res = getSingleSequenceToNum(sqrefLastArr[i]);
-    if (_res) resArr.push(_res);
+export function getMultiSequenceToNum(str: string, sheetData?: any): string[] {
+  if (!str) {
+    return [];
   }
-  return resArr;
+
+  const MAX_CELLS = 1000; // 限制最大处理单元格数
+  let processedCells = 0;
+  let result: string[] = [];
+
+  // 获取实际数据范围
+  let actualMaxRow = 1000; // 默认值
+  if (sheetData && Array.isArray(sheetData)) {
+    // 从sheetData中获取实际使用的最大行数
+    actualMaxRow = Math.max(...sheetData.map((row: any) => row.r || 0)) + 1;
+  }
+
+  const arr = str.split(" ");
+  for (let i = 0; i < arr.length; i++) {
+    if (processedCells >= MAX_CELLS) {
+      console.warn(`Warning: Cell range exceeds maximum limit of ${MAX_CELLS} cells. Processing stopped.`);
+      break;
+    }
+
+    const item = arr[i];
+    // 检查是否是整列引用 (例如 "C:C" 或 "C1:C1048576")
+    const fullColumnMatch = item.match(/^([A-Z]+):\1$/);
+    const fullColumnRangeMatch = item.match(/^([A-Z]+)1:\1(\d+)$/);
+    
+    if (fullColumnMatch || fullColumnRangeMatch) {
+      // 对于整列引用，使用实际的数据范围
+      const col = fullColumnMatch ? fullColumnMatch[1] : fullColumnRangeMatch[1];
+      const maxRow = fullColumnRangeMatch ? parseInt(fullColumnRangeMatch[2]) : actualMaxRow;
+      
+      // 使用实际数据范围，但不超过Excel最大行数
+      const rowLimit = Math.min(maxRow, 1048576);
+      
+      for (let row = 0; row < rowLimit; row++) {
+        if (processedCells >= MAX_CELLS) break;
+        result.push(`${row}_${getColumnIndex(col)}`);
+        processedCells++;
+      }
+    } else {
+      const sequence = getSingleSequenceToNum(item);
+      if (sequence.length > 0) {
+        result = result.concat(sequence);
+        processedCells += sequence.length;
+      }
+    }
+  }
+
+  return result;
 }
 
 /**
@@ -1163,4 +1196,17 @@ export function getMultiFormulaValue(value: string): string[] {
     retArr.push(escapeCharacter(_value.replace(/&quot;|^\"|\"$/g, "")));
   }
   return retArr;
+}
+
+/**
+ * Convert column letter to index (A=0, B=1, etc.)
+ * @param {string} col - Column letter
+ * @returns {number} - Column index
+ */
+function getColumnIndex(col: string): number {
+  let index = 0;
+  for (let i = 0; i < col.length; i++) {
+    index = index * 26 + (col.charCodeAt(i) - 64);
+  }
+  return index - 1;
 }

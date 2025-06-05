@@ -570,7 +570,6 @@ export class LuckySheet extends LuckySheetBase {
           "extLst/ext/x14:dataValidations/x14:dataValidation",
           this.sheetFile
         ) || [];
-      
       rows = rows.concat(extLst);
   
       let dataVerification: IluckysheetDataVerification = {};
@@ -597,12 +596,12 @@ export class LuckySheet extends LuckySheetBase {
           operator = getXmlAttibute(attrList, "operator", null);
           const peelOffData = getPeelOffX14(formulaValue);
           sqref = peelOffData?.sqref;
-          sqrefIndexArr = getMultiSequenceToNum(sqref);
+          sqrefIndexArr = getMultiSequenceToNum(sqref, this.celldata);
           valueArr = getMultiFormulaValue(peelOffData?.formula);
         } else {
           operator = getXmlAttibute(attrList, "operator", null);
           sqref = getXmlAttibute(attrList, "sqref", null);
-          sqrefIndexArr = getMultiSequenceToNum(sqref);
+          sqrefIndexArr = getMultiSequenceToNum(sqref, this.celldata);
           valueArr = getMultiFormulaValue(formulaValue);
         }
 
